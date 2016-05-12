@@ -19,8 +19,14 @@ def count_request(request_name, project_key_parent=None, project_key_name="proje
                     key = None
                 else:
                     for _p in _parents:
-                        parent = getattr(parent, _p)
-                    key = parent.get(project_key_name)
+                        try:
+                            parent = getattr(parent, _p)
+                        except AttributeError:
+                            break
+                    try:
+                        key = parent.get(project_key_name)
+                    except AttributeError:
+                        key = None
 
             if host is not None and product is not None and key is not None:
                 counter_resource = "http://{host}/api/projects/{key}/products/{product}/kinds/{kind}".format(
