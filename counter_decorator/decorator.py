@@ -8,7 +8,7 @@ def count_request(request_name, project_key_parent=None, project_key_name="proje
         @wraps(f)
         def wrapper(*args, **kwargs):
             product = os.environ.get("PRODUCT_NAME")
-            host = os.environ.get("host")
+            host = os.environ.get("COUNTER_HOST")
             if project_key_parent is None:
                 key = kwargs.get(project_key_name)
             else:
