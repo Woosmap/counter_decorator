@@ -29,7 +29,7 @@ def count_request(request_name, project_key_parent=None, project_key_name="proje
                         key = None
 
             if host is not None and product is not None and key is not None:
-                counter_resource = "http://{host}/api/projects/{key}/products/{product}/kinds/{kind}".format(
+                counter_resource = "http://{host}/projects/{key}/products/{product}/kinds/{kind}".format(
                     host=host,
                     key=key,
                     product=product,
