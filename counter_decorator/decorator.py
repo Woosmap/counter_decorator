@@ -10,7 +10,7 @@ def _project_key_lambda(*args, **kwargs):
     return kwargs.get("project_key"), PUBLIC_KEY
 
 
-def count_request(request_name, project_key_lambda=None, headers_lambda=None):
+def count_request(request_name, project_key_lambda=None, headers_lambda=None, name_lambda=None):
     if not project_key_lambda:
         project_key_lambda = _project_key_lambda
 
@@ -23,7 +23,7 @@ def count_request(request_name, project_key_lambda=None, headers_lambda=None):
                 query_name=query_name,
                 key=key,
                 product=product,
-                kind=request_name)
+                kind=kind)
         return counter_resource
 
     def wrapped(f):
@@ -32,7 +32,8 @@ def count_request(request_name, project_key_lambda=None, headers_lambda=None):
             product = os.environ.get("PRODUCT_NAME")
             host = os.environ.get("COUNTER_HOST")
             key, kind_key = project_key_lambda(*args, **kwargs)
-            counter_resource = build_counter_resource(host, key, product, request_name, kind_key)
+            kind = name_lambda(product, key, kind_key, *args, **kwargs) if name_lambda else request_name
+            counter_resource = build_counter_resource(host, key, product, kind, kind_key)
             if counter_resource:
                 headers = headers_lambda(*args, **kwargs) if headers_lambda else {}
                 try:
@@ -40,6 +41,8 @@ def count_request(request_name, project_key_lambda=None, headers_lambda=None):
                 except requests.exceptions.ConnectionError:
                     # we should log something here about the error
                     pass
+                else:
+                    kwargs["counter_response_status_code"] = r.status_code
 
             return f(*args, **kwargs)
 
