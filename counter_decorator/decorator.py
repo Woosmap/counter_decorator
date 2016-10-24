@@ -2,43 +2,47 @@ import requests
 import os
 from functools import wraps
 
+PRIVATE_KEY = "private_key"
+PUBLIC_KEY = "public_key"
 
-def count_request(request_name, project_key_parent=None, project_key_name="project_key"):
+
+def _project_key_lambda(*args, **kwargs):
+    return kwargs.get("project_key"), PUBLIC_KEY
+
+
+def count_request(request_name, project_key_lambda=None, headers_lambda=None, name_lambda=None):
+    if not project_key_lambda:
+        project_key_lambda = _project_key_lambda
+
+    def build_counter_resource(host, key, product, kind, kind_key=PUBLIC_KEY):
+        counter_resource = None
+        query_name = "key" if kind_key == PUBLIC_KEY else "private_key"
+        if host is not None and product is not None and key is not None:
+            counter_resource = "http://{host}/products/{product}/kinds/{kind}?{query_name}={key}".format(
+                host=host,
+                query_name=query_name,
+                key=key,
+                product=product,
+                kind=kind)
+        return counter_resource
+
     def wrapped(f):
         @wraps(f)
         def wrapper(*args, **kwargs):
             product = os.environ.get("PRODUCT_NAME")
             host = os.environ.get("COUNTER_HOST")
-            if project_key_parent is None:
-                key = kwargs.get(project_key_name)
-            else:
-                _parents = project_key_parent.split(".")
+            key, kind_key = project_key_lambda(*args, **kwargs)
+            kind = name_lambda(product, key, kind_key, *args, **kwargs) if name_lambda else request_name
+            counter_resource = build_counter_resource(host, key, product, kind, kind_key)
+            if counter_resource:
+                headers = headers_lambda(*args, **kwargs) if headers_lambda else {}
                 try:
-                    parent = kwargs[_parents.pop(0)]
-                except KeyError:
-                    key = None
-                else:
-                    for _p in _parents:
-                        try:
-                            parent = getattr(parent, _p)
-                        except AttributeError:
-                            break
-                    try:
-                        key = parent.get(project_key_name)
-                    except AttributeError:
-                        key = None
-
-            if host is not None and product is not None and key is not None:
-                counter_resource = "http://{host}/api/projects/{key}/products/{product}/kinds/{kind}".format(
-                    host=host,
-                    key=key,
-                    product=product,
-                    kind=request_name)
-                try:
-                    r = requests.post(counter_resource)
+                    r = requests.post(counter_resource, headers=headers)
                 except requests.exceptions.ConnectionError:
                     # we should log something here about the error
                     pass
+                else:
+                    kwargs["counter_response_status_code"] = r.status_code
 
             return f(*args, **kwargs)
 
