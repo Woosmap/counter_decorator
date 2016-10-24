@@ -17,10 +17,8 @@ def count_request(request_name, project_key_lambda=None, headers_lambda=None, na
     def build_counter_resource(host, key, product, kind, kind_key=PUBLIC_KEY):
         counter_resource = None
         if host is not None and product is not None and key is not None:
-            query_name = "key" if kind_key == PUBLIC_KEY else "private_key"
-            counter_resource = "http://{host}/products/{product}/kinds/{kind}?{query_name}={key}".format(
+            counter_resource = "http://{host}/projects/key/products/{product}/kinds/{kind}".format(
                 host=host,
-                query_name=query_name,
                 key=key,
                 product=product,
                 kind=kind)
@@ -41,8 +39,6 @@ def count_request(request_name, project_key_lambda=None, headers_lambda=None, na
                 except requests.exceptions.ConnectionError:
                     # we should log something here about the error
                     pass
-                else:
-                    kwargs["counter_response_status_code"] = r.status_code
 
             return f(*args, **kwargs)
 
