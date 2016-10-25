@@ -1,6 +1,6 @@
-import requests
 import os
 from functools import wraps
+from . import requests_session as requests
 
 PRIVATE_KEY = "private_key"
 PUBLIC_KEY = "public_key"
