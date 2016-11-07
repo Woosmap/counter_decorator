@@ -1,6 +1,8 @@
 import os
 from functools import wraps
-from . import requests_session as requests
+import requests
+from . import requests_session
+
 
 PRIVATE_KEY = "private_key"
 PUBLIC_KEY = "public_key"
@@ -37,7 +39,7 @@ def count_request(request_name, project_key_lambda=None, headers_lambda=None, na
             if counter_resource:
                 headers = headers_lambda(*args, **kwargs) if headers_lambda else {}
                 try:
-                    r = requests.post(counter_resource, headers=headers)
+                    r = requests_session.post(counter_resource, headers=headers)
                 except requests.exceptions.ConnectionError:
                     # we should log something here about the error
                     pass
