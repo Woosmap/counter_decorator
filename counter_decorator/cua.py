@@ -10,7 +10,7 @@ import json
 
 from threading import Thread
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('cua')
 
 
 class Config(object):
@@ -110,7 +110,6 @@ class Worker(Thread):
                 self.queue.mark_failed(job_id, e, traceback.format_exc())
             else:
                 self.queue.mark_done(job_id)
-
         logger.debug(self.name + ': Exiting...')
 
 
