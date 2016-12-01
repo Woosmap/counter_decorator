@@ -30,13 +30,15 @@ def _project_key_lambda(*args, **kwargs):
 def _get_organization_from_token(readable_token):
     instance = readable_token['instance']
 
-    try:
-        if instance['is_staff'] or instance['is_superuser']:
-            return None
-    except KeyError:
-        pass
+    is_admin = False
 
-    return instance['organization']
+    try:
+        is_admin = instance['is_staff'] or instance['is_superuser']
+    except KeyError:
+        # instance has no is_staff or is_superuser keys if the token is got with a public or private key.
+        is_admin = False
+    finally:
+        return None if is_admin else instance["organization"]
 
 
 def count_request(request_name, project_key_lambda=None, headers_lambda=None, name_lambda=None):
