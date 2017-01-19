@@ -11,7 +11,7 @@ setup(
     url='https://github.com/webgeoservices/counter_decorator',
     author='webgeoservices',
     author_email=',',
-    install_requires=['redis', 'requests==2.9.1'],
+    install_requires=['redis', ],
     classifiers=[
         'Environment :: Web Environment',
         'Intended Audience :: Developers',
@@ -21,4 +21,3 @@ setup(
         'Topic :: Software Development :: Libraries :: Python Modules',
     ],
 )
-
