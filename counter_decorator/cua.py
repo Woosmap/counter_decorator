@@ -2,12 +2,10 @@
 import os
 import traceback
 from uuid import uuid4
-
 import time
 import redis
 import logging
 import json
-
 from threading import Thread
 
 logger = logging.getLogger('cua')
@@ -124,3 +122,15 @@ class ThreadPool:
         for worker in self.workers:
             worker.should_exit = True
             worker.join()
+
+
+def build_job_data(product, kind, organization):
+    data = None
+    if all(arg is not None for arg in [product, kind, organization]):
+        data = {
+            'product': product,
+            'kind': kind,
+            'ts': time.time(),
+            'organization': organization
+        }
+    return data
