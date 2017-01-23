@@ -1,4 +1,5 @@
 PUBLIC_KEY = "public_key"
+PRIVATE_KEY = "private_key"
 
 
 def project_key_lambda(*args, **kwargs):
