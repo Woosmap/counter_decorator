@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='counter-decorator',
-    version='0.1.0',
+    version='0.1.1',
     packages=find_packages(),
     include_package_data=True,
     license='Apache License 2.0',
