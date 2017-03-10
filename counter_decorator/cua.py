@@ -124,13 +124,14 @@ class ThreadPool:
             worker.join()
 
 
-def build_job_data(product, kind, organization):
+def build_job_data(product, kind, organization, counter=1):
     data = None
     if all(arg is not None for arg in [product, kind, organization]):
         data = {
             'product': product,
             'kind': kind,
             'ts': time.time(),
-            'organization': organization
+            'organization': organization,
+            'counter': counter
         }
     return data
