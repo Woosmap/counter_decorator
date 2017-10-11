@@ -2,7 +2,7 @@ PUBLIC_KEY = "public_key"
 PRIVATE_KEY = "private_key"
 
 QUOTA_MULTIPLIERS = {
-    "RECO_CONTRIBUTION": 1,
+    "RECO_CONTRIBUTION": 0,
     "RECO": 1,
     "STORES_DATABASE": 1,
     "RECO_USAGE": 1,
