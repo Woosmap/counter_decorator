@@ -1,6 +1,16 @@
 PUBLIC_KEY = "public_key"
 PRIVATE_KEY = "private_key"
 
+QUOTA_MULTIPLIERS = {
+    "RECO_CONTRIBUTION": 1,
+    "RECO": 1,
+    "STORES_DATABASE": 1,
+    "RECO_USAGE": 1,
+    "RECO_INTERNAL_USAGE": 0,
+    "STORES_SEARCHES": 1,
+    "STORES_INTERNAL_USAGE": 0,
+    "STORES": 10
+}
 
 def project_key_lambda(*args, **kwargs):
     return kwargs.get("project_key"), PUBLIC_KEY
