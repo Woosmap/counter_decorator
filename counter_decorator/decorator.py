@@ -1,12 +1,11 @@
+import logging
 import os
 from functools import wraps
 from . import queue
 from .cua import build_job_data
 from .utils import (organization_from_token, project_key_lambda as default_project_key_lambda, QUOTA_MULTIPLIERS)
 
-
-class CounterDecoratorException(Exception):
-    pass
+logger = logging.getLogger(__name__)
 
 
 def count_request(request_name, product=None, project_key_lambda=None, headers_lambda=None, name_lambda=None):
@@ -20,7 +19,7 @@ def count_request(request_name, product=None, project_key_lambda=None, headers_l
             kind = name_lambda(product, key, kind_key, *args, **kwargs) if name_lambda else request_name
             organization = organization_from_token(kwargs['readable_token'])
             if product not in QUOTA_MULTIPLIERS:
-                raise CounterDecoratorException("%s is not a valid product" % product)
+                raise logger.error("%s is not a valid product" % product)
             else:
                 data = build_job_data(product, kind, organization)
                 queue.put(data)
