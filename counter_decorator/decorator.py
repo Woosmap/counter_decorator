@@ -19,10 +19,10 @@ def count_request(request_name, product=None, project_key_lambda=None, headers_l
             kind = name_lambda(product, key, kind_key, *args, **kwargs) if name_lambda else request_name
             organization = organization_from_token(kwargs['readable_token'])
             if product not in QUOTA_MULTIPLIERS:
-                raise logger.error("%s is not a valid product" % product)
-            else:
-                data = build_job_data(product, kind, organization)
-                queue.put(data)
+                logger.error("%s is not a valid product" % product)
+
+            data = build_job_data(product, kind, organization)
+            queue.put(data)
             return f(*args, **kwargs)
 
         return wrapper
