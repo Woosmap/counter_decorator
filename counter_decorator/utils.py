@@ -18,11 +18,11 @@ def project_key_lambda(*args, **kwargs):
     return kwargs.get("project_key"), PUBLIC_KEY
 
 
-def organization_from_token(readable_token, **kwargs):
+def organization_from_token(token, **kwargs):
     project_id = kwargs.get('project_id')
     organization_id = kwargs.get('organization_id')
 
-    instance = readable_token['instance']
+    instance = token['instance']
     is_admin = False
 
     try:
