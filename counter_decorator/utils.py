@@ -21,22 +21,14 @@ def project_key_lambda(*args, **kwargs):
 def organization_from_token(token, **kwargs):
     project_id = kwargs.get('project_id')
     organization_id = kwargs.get('organization_id')
-
+    kind = token['kind']
     instance = token['instance']
-    is_admin = False
 
-    try:
-        is_admin = instance['is_staff'] or instance['is_superuser']
-    except KeyError:
-        # instance has no is_staff or is_superuser keys if the token is got with a public or private key.
-        is_admin = False
-    finally:
-        if is_admin:
-            if project_id is not None and organization_id is not None:
-                return {
-                    'pk': organization_id,
-                    'project_pk': project_id
-                }
-            return None
-        else:
-            return instance["organization"]
+    if kind == 'user':
+        if project_id is not None and organization_id is not None:
+            return {
+                'pk': organization_id,
+                'project_pk': project_id
+            }
+    else:
+        return instance['organization']
