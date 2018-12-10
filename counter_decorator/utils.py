@@ -13,18 +13,23 @@ QUOTA_MULTIPLIERS = {
     "STORES": 10
 }
 
+
 def project_key_lambda(*args, **kwargs):
     return kwargs.get("project_key"), PUBLIC_KEY
 
 
-def organization_from_token(readable_token):
-    instance = readable_token['instance']
-    is_admin = False
+def organization_from_token(token, **kwargs):
+    project_id = kwargs.get('project_id')
+    organization_id = kwargs.get('organization_id')
+    instance = token['instance']
 
-    try:
-        is_admin = instance['is_staff'] or instance['is_superuser']
-    except KeyError:
-        # instance has no is_staff or is_superuser keys if the token is got with a public or private key.
-        is_admin = False
-    finally:
-        return None if is_admin else instance["organization"]
+    if instance['kind'] == 'user':
+        if project_id is not None and organization_id is not None:
+            return {
+                'pk': organization_id,
+                'project_pk': project_id
+            }
+        else:
+            return None
+    else:
+        return instance['organization']
