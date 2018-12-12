@@ -33,7 +33,7 @@ def count_request(request_name, product=None, project_key_lambda=None, headers_l
                 logger.error('Cannot build a job data without organization.\n {request_name}, {product}, {kind}'.format(
                     request_name=request_name,
                     product=product,
-                    kind=knd
+                    kind=kind
                 ))
             return f(*args, **kwargs)
 
