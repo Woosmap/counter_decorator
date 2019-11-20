@@ -12,7 +12,7 @@ QUOTA_MULTIPLIERS = {
     "STORES_INTERNAL_USAGE": 0,
     "STORES": 10,
     "LOCALITIES": 1,
-    "HERE": 1
+    "GEOCODE": 1
 }
 
 
