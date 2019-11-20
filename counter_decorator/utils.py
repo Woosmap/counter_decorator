@@ -11,7 +11,8 @@ QUOTA_MULTIPLIERS = {
     "STORES_SEARCHES": 1,
     "STORES_INTERNAL_USAGE": 0,
     "STORES": 10,
-    "LOCALITIES": 1
+    "LOCALITIES": 1,
+    "HERE": 1
 }
 
 
