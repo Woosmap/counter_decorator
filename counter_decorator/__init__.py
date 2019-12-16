@@ -1,4 +1,4 @@
-from .cua import EnvironmentConfig, Queue, build_job_data
+from woosutils.cua import EnvironmentConfig, Queue, build_job_data
 
 try:
     config = EnvironmentConfig(keys_prefix='COUNTER_')

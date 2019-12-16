@@ -2,7 +2,7 @@ import logging
 import os
 from functools import wraps
 from . import queue
-from .cua import build_job_data
+from woosutils.cua import build_job_data
 from .utils import (organization_from_token, project_key_lambda as default_project_key_lambda, QUOTA_MULTIPLIERS)
 
 logger = logging.getLogger(__name__)
