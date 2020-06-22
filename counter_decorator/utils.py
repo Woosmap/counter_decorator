@@ -13,7 +13,8 @@ QUOTA_MULTIPLIERS = {
     "STORES": 10,
     "LOCALITIES": 1,
     "DISTANCE": 1,
-    "GEOCODE": 1
+    "GEOCODE": 1,
+    "TRAFFIC": 1
 }
 
 
