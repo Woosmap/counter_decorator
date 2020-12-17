@@ -14,7 +14,8 @@ QUOTA_MULTIPLIERS = {
     "LOCALITIES": 1,
     "DISTANCE": 1,
     "GEOCODE": 1,
-    "TRAFFIC": 1
+    "TRAFFIC": 1,
+    "MERCHANTS": 1
 }
 
 
