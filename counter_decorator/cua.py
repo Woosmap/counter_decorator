@@ -12,11 +12,12 @@ logger = logging.getLogger('cua')
 
 
 class Config(object):
-    def __init__(self, prefix, host, port, database):
+    def __init__(self, prefix, host, port, database, stop_count):
         self.HOST = host
         self.PORT = port
         self.DATABASE = database
         self.PREFIX = prefix
+        self.STOP_COUNT = stop_count
 
 
 class EnvironmentConfig(Config):
@@ -25,7 +26,8 @@ class EnvironmentConfig(Config):
         database = os.environ[keys_prefix + 'REDIS_DATABASE']
         prefix = os.environ[keys_prefix + 'REDIS_QUEUE_PREFIX']
         port = os.environ.get(keys_prefix + 'REDIS_PORT', 6379)
-        super(EnvironmentConfig, self).__init__(prefix, host, port, database)
+        stop_count = os.environ.get(keys_prefix + 'STOP_COUNT', False)
+        super(EnvironmentConfig, self).__init__(prefix, host, port, database, stop_count)
 
 
 class Queue(object):
@@ -34,12 +36,16 @@ class Queue(object):
         self._redis = redis.StrictRedis(host=config.HOST, port=config.PORT, db=config.DATABASE)
 
         self.prefix = config.PREFIX
+        self.stop_count = config.STOP_COUNT
         self.todo_name = self.prefix + ':todo'
         self.doing_name = self.prefix + ':doing'
         self.failed_name = self.prefix + ':failed'
 
     def put(self, data):
         job_id = self.prefix + '-' + str(uuid4())
+        if self.stop_count:
+            return job_id
+
         job_data = {'t': time.time(), 'data': data}
 
         pipeline = self._redis.pipeline()
