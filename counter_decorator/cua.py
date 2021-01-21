@@ -26,7 +26,7 @@ class EnvironmentConfig(Config):
         database = os.environ[keys_prefix + 'REDIS_DATABASE']
         prefix = os.environ[keys_prefix + 'REDIS_QUEUE_PREFIX']
         port = os.environ.get(keys_prefix + 'REDIS_PORT', 6379)
-        enabled = os.environ.get(keys_prefix + 'ENABLED', 'yes')
+        enabled = os.environ.get(keys_prefix + 'ENABLED', 'yes') == 'yes'
         super(EnvironmentConfig, self).__init__(prefix, host, port, database, enabled)
 
 
@@ -42,7 +42,7 @@ class Queue(object):
         self.failed_name = self.prefix + ':failed'
 
     def put(self, data):
-        if self.enabled == 'no':
+        if self.enabled:
             return None
         job_id = self.prefix + '-' + str(uuid4())
         job_data = {'t': time.time(), 'data': data}
