@@ -42,7 +42,7 @@ class Queue(object):
         self.failed_name = self.prefix + ':failed'
 
     def put(self, data):
-        if self.enabled:
+        if not self.enabled:
             return None
         job_id = self.prefix + '-' + str(uuid4())
         job_data = {'t': time.time(), 'data': data}
