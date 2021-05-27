@@ -12,11 +12,13 @@ logger = logging.getLogger('cua')
 
 
 class Config(object):
-    def __init__(self, prefix, host, port, database):
+    def __init__(self, prefix, host, port, database, enabled, disabled_products):
         self.HOST = host
         self.PORT = port
         self.DATABASE = database
         self.PREFIX = prefix
+        self.ENABLED = enabled
+        self.DISABLED_PRODUCTS = disabled_products
 
 
 class EnvironmentConfig(Config):
@@ -25,7 +27,9 @@ class EnvironmentConfig(Config):
         database = os.environ[keys_prefix + 'REDIS_DATABASE']
         prefix = os.environ[keys_prefix + 'REDIS_QUEUE_PREFIX']
         port = os.environ.get(keys_prefix + 'REDIS_PORT', 6379)
-        super(EnvironmentConfig, self).__init__(prefix, host, port, database)
+        enabled = os.environ.get(keys_prefix + 'ENABLED', 'yes') == 'yes'
+        disabled_products = set(os.environ.get(keys_prefix + 'DISABLED_PRODUCTS', '').split(' '))
+        super(EnvironmentConfig, self).__init__(prefix, host, port, database, enabled, disabled_products)
 
 
 class Queue(object):
@@ -34,19 +38,27 @@ class Queue(object):
         self._redis = redis.StrictRedis(host=config.HOST, port=config.PORT, db=config.DATABASE)
 
         self.prefix = config.PREFIX
+        self.enabled = config.ENABLED
+        self.disabled_products = config.DISABLED_PRODUCTS
         self.todo_name = self.prefix + ':todo'
         self.doing_name = self.prefix + ':doing'
         self.failed_name = self.prefix + ':failed'
 
-    def put(self, data):
-        job_id = self.prefix + '-' + str(uuid4())
-        job_data = {'t': time.time(), 'data': data}
+    def _job_is_allowed(self, job):
+        return job is not None and job['product'] not in self.disabled_products
 
-        pipeline = self._redis.pipeline()
-        pipeline.set(job_id, json.dumps(job_data))
-        pipeline.lpush(self.todo_name, job_id)
-        pipeline.execute()
-        return job_id
+    def put(self, data):
+        if self.enabled and self and self._job_is_allowed(data):
+            job_id = self.prefix + '-' + str(uuid4())
+            job_data = {'t': time.time(), 'data': data}
+
+            pipeline = self._redis.pipeline()
+            pipeline.set(job_id, json.dumps(job_data))
+            pipeline.lpush(self.todo_name, job_id)
+            pipeline.execute()
+            return job_id
+        else:
+            return None
 
     def get(self):
         job_id = self._redis.brpoplpush(self.todo_name, self.doing_name)
