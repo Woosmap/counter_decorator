@@ -32,7 +32,7 @@ class EnvironmentConfig(Config):
         port = os.environ.get(keys_prefix + 'REDIS_PORT', 6379)
         enabled = os.environ.get(keys_prefix + 'ENABLED', 'yes') == 'yes'
         disabled_products = set(os.environ.get(keys_prefix + 'DISABLED_PRODUCTS', '').split(' '))
-        socket_timeout = os.environ.get('REDIS_SOCKET_TIMEOUT', 1)
+        socket_timeout = int(os.environ.get('REDIS_SOCKET_TIMEOUT', 1))
         super(EnvironmentConfig, self).__init__(prefix, host, port, database, enabled, disabled_products,
                                                 socket_timeout)
 
