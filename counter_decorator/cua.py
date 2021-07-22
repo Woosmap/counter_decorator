@@ -8,17 +8,20 @@ import logging
 import json
 from threading import Thread
 
+from redis import RedisError
+
 logger = logging.getLogger('cua')
 
 
 class Config(object):
-    def __init__(self, prefix, host, port, database, enabled, disabled_products):
+    def __init__(self, prefix, host, port, database, enabled, disabled_products, socket_timeout):
         self.HOST = host
         self.PORT = port
         self.DATABASE = database
         self.PREFIX = prefix
         self.ENABLED = enabled
         self.DISABLED_PRODUCTS = disabled_products
+        self.SOCKET_TIMEOUT = socket_timeout
 
 
 class EnvironmentConfig(Config):
@@ -29,13 +32,15 @@ class EnvironmentConfig(Config):
         port = os.environ.get(keys_prefix + 'REDIS_PORT', 6379)
         enabled = os.environ.get(keys_prefix + 'ENABLED', 'yes') == 'yes'
         disabled_products = set(os.environ.get(keys_prefix + 'DISABLED_PRODUCTS', '').split(' '))
-        super(EnvironmentConfig, self).__init__(prefix, host, port, database, enabled, disabled_products)
+        socket_timeout = os.environ.get('REDIS_SOCKET_TIMEOUT', 1)
+        super(EnvironmentConfig, self).__init__(prefix, host, port, database, enabled, disabled_products,
+                                                socket_timeout)
 
 
 class Queue(object):
     def __init__(self, config):
-        config = config
-        self._redis = redis.StrictRedis(host=config.HOST, port=config.PORT, db=config.DATABASE)
+        self._redis = redis.StrictRedis(host=config.HOST, port=config.PORT, db=config.DATABASE,
+                                        socket_timeout=config.SOCKET_TIMEOUT, retry_on_timeout=True)
 
         self.prefix = config.PREFIX
         self.enabled = config.ENABLED
@@ -49,14 +54,17 @@ class Queue(object):
 
     def put(self, data):
         if self.enabled and self and self._job_is_allowed(data):
-            job_id = self.prefix + '-' + str(uuid4())
-            job_data = {'t': time.time(), 'data': data}
+            try:
+                job_id = self.prefix + '-' + str(uuid4())
+                job_data = {'t': time.time(), 'data': data}
 
-            pipeline = self._redis.pipeline()
-            pipeline.set(job_id, json.dumps(job_data))
-            pipeline.lpush(self.todo_name, job_id)
-            pipeline.execute()
-            return job_id
+                pipeline = self._redis.pipeline()
+                pipeline.set(job_id, json.dumps(job_data))
+                pipeline.lpush(self.todo_name, job_id)
+                pipeline.execute()
+                return job_id
+            except RedisError:
+                pass
         else:
             return None
 
